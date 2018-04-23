@@ -1,0 +1,72 @@
+package events
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
+
+	docker "github.com/fsouza/go-dockerclient"
+	"github.com/justcompile/k8sevents/internal/config"
+	"github.com/justcompile/k8sevents/internal/exts"
+)
+
+var tenses = map[string]string{"start": "started", "stop": "stopped"}
+
+// Handler struct...
+type Handler struct {
+	Config *config.Configuration
+}
+
+// Handler.dispatch does stuff...
+func (handler *Handler) dispatch(event *docker.APIEvents) {
+	containerAttrs := event.Actor.Attributes
+	if containerAttrs["io.kubernetes.docker.type"] != "podsandbox" {
+		return
+	}
+
+	payload := map[string]interface{}{}
+	payload["event_type"] = fmt.Sprintf("POD_%s", strings.ToUpper(event.Action))
+	payload["cluster_id"] = containerAttrs["it.justcompile.aaas.cluster_id"]
+	payload["data"] = containerAttrs
+	payload["description"] = fmt.Sprintf("%s %s", strings.Title(tenses[event.Action]), containerAttrs["role"])
+
+	jsonValue, _ := json.Marshal(payload)
+
+	http.Post(handler.config.DispatchEndpoint, "application/json", bytes.NewBuffer(jsonValue))
+}
+
+func (handler *Handler) listen(client *docker.Client) {
+	listener := make(chan *docker.APIEvents)
+	err := client.AddEventListener(listener)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Print("Connected")
+
+	defer func() {
+
+		err = client.RemoveEventListener(listener)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}()
+
+	for {
+		select {
+		case msg := <-listener:
+			isTracked, _ := exts.InArray(msg.Action, handler.config.Events)
+			if msg.Type == "container" && isTracked {
+				namespace := msg.Actor.Attributes["io.kubernetes.pod.namespace"]
+
+				isSystemNamespace, _ := exts.InArray(namespace, handler.config.Namespaces)
+				if !isSystemNamespace {
+					handler.dispatch(msg)
+				}
+			}
+		}
+	}
+}

@@ -37,4 +37,3 @@ func Config(configPath string) *Configuration {
 
 	return config
 }
-g

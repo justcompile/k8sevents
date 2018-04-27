@@ -1,9 +1,11 @@
 package config
 
-import "github.com/tkanos/gonfig"
+import (
+	"github.com/tkanos/gonfig"
+)
 
-var TrackedEvents = []string{"start", "stop"}
-var SystemNamespaces = []string{"kube-system", "default", "kube-public"}
+var trackedEvents = []string{"start", "stop"}
+var systemNamespaces = []string{"kube-system", "default", "kube-public"}
 
 // DockerConfig ...
 type DockerConfig struct {
@@ -22,18 +24,17 @@ type Configuration struct {
 	Namespaces       []string
 }
 
-var config Configuration
-var loaded = false
+var config *Configuration
 
 // Config ...
-func Config() Configuration {
-	if !loaded {
-		config := Configuration{Events: TrackedEvents, Namespaces: SystemNamespaces}
-		err := gonfig.GetConf("~/.k8sevents/config.json", &config)
-		if err != nil {
-			panic(err)
-		}
-		loaded = true
+func Config(configPath string) *Configuration {
+	config = &Configuration{Events: trackedEvents, Namespaces: systemNamespaces}
+	err := gonfig.GetConf(configPath, config)
+
+	if err != nil {
+		panic(err)
 	}
+
 	return config
 }
+g

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 
 	"github.com/fsouza/go-dockerclient"
@@ -9,7 +10,10 @@ import (
 )
 
 func main() {
-	conf := cfg.Config()
+	configFilePtr := *flag.String("config", "", "Path to configuration file. (Required)")
+	flag.Parse()
+
+	conf := cfg.Config(configFilePtr)
 	var client *docker.Client
 
 	if !conf.Docker.UseEnv {
@@ -24,6 +28,6 @@ func main() {
 		panic(err)
 	}
 
-	dispatcher := events.Handler{Config: &conf}
-	dispatcher.listen(&client)
+	dispatcher := &events.Handler{Config: conf}
+	dispatcher.Listen(client)
 }

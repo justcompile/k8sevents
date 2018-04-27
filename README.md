@@ -1,4 +1,6 @@
-# Standard Go Project Layout
+# K8s Events
+
+[![Build Status](https://travis-ci.org/justcompile/k8sevents.svg?branch=master)](https://travis-ci.org/justcompile/k8sevents)
 
 This is a basic layout for Go application projects. It represents the most common directory structure with a number of small enhancements along with several supporting directories common to any real world application. 
 

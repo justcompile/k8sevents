@@ -20,8 +20,8 @@ type Handler struct {
 	Config *config.Configuration
 }
 
-// Handler.dispatch does stuff...
-func (handler *Handler) dispatch(event *docker.APIEvents) {
+// Dispatch ...
+func (handler *Handler) Dispatch(event *docker.APIEvents) {
 	containerAttrs := event.Actor.Attributes
 	if containerAttrs["io.kubernetes.docker.type"] != "podsandbox" {
 		return
@@ -35,10 +35,11 @@ func (handler *Handler) dispatch(event *docker.APIEvents) {
 
 	jsonValue, _ := json.Marshal(payload)
 
-	http.Post(handler.config.DispatchEndpoint, "application/json", bytes.NewBuffer(jsonValue))
+	http.Post(handler.Config.DispatchEndpoint, "application/json", bytes.NewBuffer(jsonValue))
 }
 
-func (handler *Handler) listen(client *docker.Client) {
+// Listen ...
+func (handler *Handler) Listen(client *docker.Client) {
 	listener := make(chan *docker.APIEvents)
 	err := client.AddEventListener(listener)
 	if err != nil {
@@ -58,13 +59,13 @@ func (handler *Handler) listen(client *docker.Client) {
 	for {
 		select {
 		case msg := <-listener:
-			isTracked, _ := exts.InArray(msg.Action, handler.config.Events)
+			isTracked, _ := exts.InArray(msg.Action, handler.Config.Events)
 			if msg.Type == "container" && isTracked {
 				namespace := msg.Actor.Attributes["io.kubernetes.pod.namespace"]
 
-				isSystemNamespace, _ := exts.InArray(namespace, handler.config.Namespaces)
+				isSystemNamespace, _ := exts.InArray(namespace, handler.Config.Namespaces)
 				if !isSystemNamespace {
-					handler.dispatch(msg)
+					handler.Dispatch(msg)
 				}
 			}
 		}

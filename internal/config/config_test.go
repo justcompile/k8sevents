@@ -24,7 +24,7 @@ func setupSubTest(t *testing.T, filePath string, data string) func(t *testing.T)
 
 type assertFn func(conf *Configuration) bool
 
-func TestConfig(t *testing.T) {
+func TestConfig_DispatchEndpoint(t *testing.T) {
 	cases := []struct {
 		name     string
 		data     string

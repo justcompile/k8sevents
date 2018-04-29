@@ -53,3 +53,17 @@ func TestConfig_DispatchEndpoint(t *testing.T) {
 		})
 	}
 }
+
+func TestConfig_Panics_When_File_Does_Not_Exist(t *testing.T) {
+
+	func() {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Errorf("TestConfig_Panics_When_File_Does_Not_Exist should have panicked!")
+			}
+		}()
+		// This function should cause a panic
+		Config("i/dont/exist.json")
+	}()
+
+}

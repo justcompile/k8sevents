@@ -1,0 +1,11 @@
+[Unit]
+Description=Event dispatcher for Docker
+After=docker.service
+
+[Service]
+# Environment= MY_ENVIRONMENT_VAR =/path/to/file.config
+ExecStart=/usr/bin/k8sevents --config=/etc/k8sevents/k8sevents.json
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

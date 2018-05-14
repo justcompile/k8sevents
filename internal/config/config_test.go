@@ -67,3 +67,29 @@ func TestConfig_Panics_When_File_Does_Not_Exist(t *testing.T) {
 	}()
 
 }
+
+func TestConfig_DockerObject(t *testing.T) {
+	cases := []struct {
+		name     string
+		data     string
+		expected assertFn
+	}{
+		{"Docker UseEnv", "{\"Docker\": {\"UseEnv\": true}}", func(config *Configuration) bool { return config.Docker.UseEnv == true }},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			const filePath = "test.json"
+
+			teardownSubTest := setupSubTest(t, filePath, tc.data)
+			defer teardownSubTest(t)
+
+			var cfg = *Config(filePath)
+
+			if !tc.expected(&cfg) {
+				fmt.Printf("%+v\n", config)
+				t.Errorf("Error in Config.Docker => %s", tc.name)
+			}
+		})
+	}
+}

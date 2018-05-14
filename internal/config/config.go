@@ -18,7 +18,7 @@ type DockerConfig struct {
 
 // Configuration struct
 type Configuration struct {
-	Docker           *DockerConfig
+	Docker           DockerConfig
 	DispatchEndpoint string
 	Events           []string
 	Namespaces       []string

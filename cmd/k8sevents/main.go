@@ -10,10 +10,10 @@ import (
 )
 
 func main() {
-	configFilePtr := *flag.String("config", "", "Path to configuration file. (Required)")
+	configFilePtr := flag.String("config", "", "Path to configuration file. (Required)")
 	flag.Parse()
 
-	conf := cfg.Config(configFilePtr)
+	conf := cfg.Config(*configFilePtr)
 	var client *docker.Client
 
 	if !conf.Docker.UseEnv {
@@ -28,6 +28,6 @@ func main() {
 		panic(err)
 	}
 
-	dispatcher := &events.Handler{Config: conf}
+	dispatcher := &events.Handler{Config: *conf}
 	dispatcher.Listen(client)
 }

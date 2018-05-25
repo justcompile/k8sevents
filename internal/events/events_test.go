@@ -83,7 +83,7 @@ func Test_Dispatch_Does_Not_Call_Endpoint_When_Container_Attr_Is_Not_Pod_Sandbox
 
 	var event = makeAPIEvent(attributes, "hi")
 
-	var eventHandler = &Handler{Config: cfg}
+	var eventHandler = &Handler{Config: *cfg}
 
 	eventHandler.Dispatch(&event)
 
@@ -124,7 +124,7 @@ func Test_Dispatch_Sends_Correct_Payload_Format_When_Action_Received(t *testing.
 
 	var event = makeAPIEvent(attributes, "stop")
 
-	var eventHandler = &Handler{Config: cfg}
+	var eventHandler = &Handler{Config: *cfg}
 
 	eventHandler.Dispatch(&event)
 

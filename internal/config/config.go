@@ -28,12 +28,13 @@ var config *Configuration
 
 // Config ...
 func Config(configPath string) *Configuration {
-	config = &Configuration{Events: trackedEvents, Namespaces: systemNamespaces}
-	err := gonfig.GetConf(configPath, config)
+	config := Configuration{Events: trackedEvents, Namespaces: systemNamespaces}
+
+	err := gonfig.GetConf(configPath, &config)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return config
+	return &config
 }

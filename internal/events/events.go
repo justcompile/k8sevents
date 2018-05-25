@@ -17,7 +17,7 @@ var tenses = map[string]string{"start": "started", "stop": "stopped"}
 
 // Handler struct...
 type Handler struct {
-	Config *config.Configuration
+	Config config.Configuration
 }
 
 // Dispatch ...
@@ -35,7 +35,15 @@ func (handler *Handler) Dispatch(event *docker.APIEvents) {
 
 	jsonValue, _ := json.Marshal(payload)
 
-	http.Post(handler.Config.DispatchEndpoint, "application/json", bytes.NewBuffer(jsonValue))
+	fmt.Printf("[%s] Sending -> %v", handler.Config.DispatchEndpoint, payload)
+
+	resp, err := http.Post(handler.Config.DispatchEndpoint, "application/json", bytes.NewBuffer(jsonValue))
+
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	fmt.Printf("Recv -> %v", resp)
 }
 
 // Listen ...

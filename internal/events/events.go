@@ -35,15 +35,13 @@ func (handler *Handler) Dispatch(event *docker.APIEvents) {
 
 	jsonValue, _ := json.Marshal(payload)
 
-	fmt.Printf("[%s] Sending -> %v", handler.Config.DispatchEndpoint, payload)
+	log.Printf("Received %s Event", event.Action)
 
-	resp, err := http.Post(handler.Config.DispatchEndpoint, "application/json", bytes.NewBuffer(jsonValue))
+	_, err := http.Post(handler.Config.DispatchEndpoint, "application/json", bytes.NewBuffer(jsonValue))
 
 	if err != nil {
-		fmt.Errorf("Error: %v", err)
+		log.Fatal(err)
 	}
-
-	fmt.Printf("Recv -> %v", resp)
 }
 
 // Listen ...
